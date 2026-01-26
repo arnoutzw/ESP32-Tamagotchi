@@ -280,17 +280,48 @@ Menu options:
 - No stuttering during menu navigation
 - Consistent timing for mini-games
 
-### REQ-SW-XXX: Screen Orientation
+### REQ-SW-038: Screen Orientation
 **Priority**: Critical
-**Description**:  Graphics shall be drawn in portrait mode
+**Description**: Graphics shall be drawn in portrait mode.
+- Display orientation: 135 pixels wide x 240 pixels tall
+- Sprites and UI elements designed for vertical layout
+- Coordinate system: (0,0) at top-left corner
 
-### REQ-SW-XXX: GUI Location
-**Priority**: Critical
-**Description**:  GUI shall only cover bottom 20% of the screen and shall be scrollable
+**Acceptance Criteria**:
+- All graphics render in portrait orientation
+- No rotation artifacts or misaligned elements
+- Touch/button coordinates match visual layout
 
-### REQ-SW-XXX:  Button function
+### REQ-SW-039: GUI Location
 **Priority**: Critical
-**Description**:  Left button shall navigate down in 
+**Description**: GUI shall only cover the bottom 20% of the screen and shall be scrollable.
+- Menu area: bottom 48 pixels (20% of 240 height)
+- Pet display area: top 192 pixels (80% of screen)
+- Menu items scroll horizontally or vertically within GUI area
+- Clear visual separation between pet area and menu area
+
+**Acceptance Criteria**:
+- Menu never obscures more than 20% of screen height
+- Menu items are scrollable when more than can fit
+- Visual indicator shows current menu position/scroll state
+- Pet remains fully visible while navigating menus
+
+### REQ-SW-043: Button Functions
+**Priority**: Critical
+**Description**: Revised button control scheme for menu navigation.
+- **Left Button (GPIO 0)**:
+  - Short press: Navigate DOWN in menu
+  - Long press (2s): Navigate BACK to previous menu/screen
+- **Right Button (GPIO 35)**:
+  - Short press: Navigate UP in menu
+  - Long press (2s): CONFIRM/SELECT current menu item
+
+**Acceptance Criteria**:
+- Short press responds within 100ms
+- Long press triggers at exactly 2 seconds
+- Visual feedback on button press (highlight change)
+- Audio feedback on selection (if sound enabled)
+- Back navigation works from any submenu
 
 ### REQ-SW-034: OTA Updates
 **Priority**: Critical
@@ -418,6 +449,13 @@ Menu options:
 | VT-026 | REQ-SW-042 | Verify shy personality develops from neglect |
 | VT-027 | REQ-SW-042 | Verify personality saved and restored correctly |
 | VT-028 | REQ-SW-042 | Verify personality affects stats as specified |
+| VT-029 | REQ-SW-038 | Verify display renders in portrait orientation (135x240) |
+| VT-030 | REQ-SW-039 | Verify menu occupies only bottom 20% of screen |
+| VT-031 | REQ-SW-039 | Verify menu items scroll when exceeding visible area |
+| VT-032 | REQ-SW-043 | Verify left short press navigates down in menu |
+| VT-033 | REQ-SW-043 | Verify left long press navigates back |
+| VT-034 | REQ-SW-043 | Verify right short press navigates up in menu |
+| VT-035 | REQ-SW-043 | Verify right long press confirms selection |
 
 ---
 
@@ -439,5 +477,8 @@ Menu options:
 | REQ-SW-036 | wifi_manager.c | VT-011, VT-012, VT-013 |
 | REQ-SW-035 | battery.c | VT-017, VT-018, VT-019 |
 | REQ-SW-037 | scripts/generate_config.py, config/secrets.yaml | VT-014, VT-015, VT-016 |
+| REQ-SW-038 | display.c | VT-029 |
+| REQ-SW-039 | menu.c, game.c | VT-030, VT-031 |
 | REQ-SW-041 | ntp_manager.c, web_dashboard.c | VT-020, VT-021, VT-022, VT-023 |
 | REQ-SW-042 | pet_state.c, sprites.c | VT-024, VT-025, VT-026, VT-027, VT-028 |
+| REQ-SW-043 | input.c, menu.c | VT-032, VT-033, VT-034, VT-035 |
