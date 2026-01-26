@@ -32,6 +32,9 @@
 #define BUTTON_LEFT_GPIO    0   // Boot button
 #define BUTTON_RIGHT_GPIO   35  // User button
 
+// Battery ADC (TTGO T-Display)
+#define BATTERY_ADC_GPIO    34  // Battery voltage with divider
+
 // Button timing
 #define BUTTON_DEBOUNCE_MS      50
 #define BUTTON_LONG_PRESS_MS    2000

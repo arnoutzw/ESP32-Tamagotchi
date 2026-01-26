@@ -4,8 +4,13 @@ firmware/build/
 
 # ESP-IDF generated
 sdkconfig.old
+firmware/sdkconfig
 *.pyc
 __pycache__/
+
+# Secrets and generated config
+config/secrets.yaml
+firmware/main/config_secrets.h
 
 # Editor
 .vscode/

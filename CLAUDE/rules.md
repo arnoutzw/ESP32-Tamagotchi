@@ -21,6 +21,7 @@ This document defines the behavioral rules and standards that AI assistants MUST
 5. [Documentation Requirements](#documentation-requirements)
    - [Bug Documentation](#bug-documentation)
    - [Bug Report Analysis](#bug-report-analysis)
+   - [Bug Report Archival](#bug-report-archival)
    - [Documentation Updates](#documentation-updates)
    - [Feature Request Processing](#feature-request-processing)
    - [Automated Report Processing Rule](#automated-report-processing-rule)
@@ -363,9 +364,32 @@ This ensures knowledge is preserved and similar issues can be avoided or quickly
 
 ### Bug Report Analysis
 
-**For every analyzed bug report, create both an RCA (Root Cause Analysis) and a FIX_PLAN document.**
+**For every analyzed bug report, create both an RCA (Root Cause Analysis) and a FIX_PLAN document. Archive all bug reports with their analysis documents.**
 
-Bug reports are stored in `docs/bugreport/v{VERSION}/{HASH}/` where:
+Bug reports MUST be stored and archived in the following folder structure under `docs/bugreport/`:
+
+```
+docs/bugreport/
+├── archived/                    # Completed/resolved bug reports
+│   └── {BUG_TITLE_SLUG}/        # e.g., "flickering-screen-elements"
+│       ├── Bug_Report.md        # Original bug report
+│       ├── Root_Cause_Analysis.md
+│       └── Fix_Plan.md
+└── active/                      # Open/in-progress bug reports
+    └── {BUG_TITLE_SLUG}/
+        ├── Bug_Report.md
+        ├── Root_Cause_Analysis.md
+        └── Fix_Plan.md
+```
+
+**Workflow:**
+1. When a bug is reported, create a folder in `docs/bugreport/active/{bug-title-slug}/`
+2. Store the bug report, RCA, and fix plan in that folder
+3. After the bug is fixed and verified, move the entire folder to `docs/bugreport/archived/`
+
+**Alternative versioned structure** (for projects with releases):
+
+Bug reports can also be organized by version: `docs/bugreport/v{VERSION}/{HASH}/` where:
 - `{VERSION}` is the firmware version (e.g., `v2.0.1`)
 - `{HASH}` is the 7-character git commit hash (e.g., `e4b11fc`)
 

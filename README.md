@@ -11,6 +11,9 @@ A virtual pet game inspired by the classic Tamagotchi, featuring a colorful baby
 - **Full Color Display**: 240x135 TFT with custom pixel art sprites
 - **Persistent Save**: Game state saved to NVS flash, survives power cycles
 - **Two-Button Control**: Simple navigation like the original Tamagotchi
+- **OTA Updates**: Over-the-air firmware updates with automatic rollback
+- **WiFi Connectivity**: Station mode for home network or AP mode for setup
+- **Battery Indicator**: Real-time battery voltage monitoring
 
 ## Hardware Requirements
 
@@ -23,27 +26,76 @@ A virtual pet game inspired by the classic Tamagotchi, featuring a colorful baby
 
 ## Quick Start
 
-### 1. Setup ESP-IDF
+### Prerequisites
+
+- Python 3.8+
+- Git
+
+### 1. Clone and Setup
 
 ```bash
-# Install ESP-IDF v5.2+ if not already installed
-# See: https://docs.espressif.com/projects/esp-idf/en/latest/esp32/get-started/
+# Clone with submodules
+git clone --recursive https://github.com/arnoutzw/ESP32-Tamagotchi.git
+cd ESP32-Tamagotchi
+
+# Run setup script (installs ESP-IDF tools)
+./scripts/setup.sh
 ```
 
-### 2. Build and Flash
+### 2. Configure WiFi (Optional)
+
+Edit `config/secrets.yaml` with your WiFi credentials:
+
+```yaml
+wifi_ap_password: "dolphin123"      # AP mode password
+wifi_sta_ssid: "YourHomeWiFi"       # Your home network SSID
+wifi_sta_password: "YourPassword"   # Your home network password
+ota_password: "tamagotchi"          # OTA update password
+```
+
+### 3. Build and Flash
 
 ```bash
-cd firmware
+# Build firmware
+./scripts/build.sh
 
-# Configure for ESP32
-idf.py set-target esp32
+# Build and flash (auto-detect port)
+./scripts/build.sh flash monitor
+
+# Or specify port
+./scripts/build.sh flash monitor -p=/dev/cu.usbserial-XXXX
+```
+
+### Manual Build (Alternative)
+
+```bash
+# Source ESP-IDF environment
+source esp-idf/export.sh
+
+# Generate config from secrets.yaml
+python scripts/generate_config.py
 
 # Build
+cd firmware
 idf.py build
 
-# Flash (adjust port as needed)
+# Flash
 idf.py -p /dev/cu.usbserial-XXXX flash monitor
 ```
+
+## OTA Updates
+
+The device supports Over-The-Air firmware updates:
+
+1. Connect to the device's WiFi (SSID: "Tamagotchi", password from config)
+2. Upload new firmware:
+   ```bash
+   curl -X POST -H "X-OTA-Password: tamagotchi" \
+     --data-binary @firmware/build/esp32-tamagotchi.bin \
+     http://192.168.4.1/ota
+   ```
+3. Device will reboot with new firmware
+4. If new firmware fails, device automatically rolls back
 
 ## Controls
 
@@ -96,25 +148,40 @@ idf.py -p /dev/cu.usbserial-XXXX flash monitor
 
 ```
 ESP32_tamagotchi/
+├── esp-idf/                    # ESP-IDF v5.2 (git submodule)
 ├── firmware/
 │   ├── main/
 │   │   ├── main.c              # Entry point
-│   │   └── config.h            # Hardware configuration
+│   │   ├── config.h            # Hardware configuration
+│   │   └── config_secrets.h    # Generated secrets (gitignored)
 │   ├── components/
 │   │   ├── display/            # ST7789 LCD driver
 │   │   ├── input/              # Button handling
 │   │   ├── pet/                # Pet state management
 │   │   ├── game/               # Game logic & mini-games
 │   │   ├── sprites/            # Pixel art graphics
-│   │   └── save_manager/       # NVS persistence
+│   │   ├── save_manager/       # NVS persistence
+│   │   ├── wifi/               # WiFi AP/STA management
+│   │   ├── ota/                # OTA update handler
+│   │   └── battery/            # Battery voltage monitor
+│   ├── partitions.csv          # OTA partition table
 │   ├── CMakeLists.txt
 │   └── sdkconfig.defaults
+├── config/
+│   ├── secrets.yaml            # Your secrets (gitignored)
+│   └── secrets.yaml.example    # Template
+├── scripts/
+│   ├── setup.sh                # One-time setup
+│   ├── build.sh                # Build firmware
+│   ├── flash.sh                # Flash firmware
+│   └── generate_config.py      # Generate config_secrets.h
 ├── docs/
 │   └── requirements/
 │       ├── software_requirements.md
 │       └── electrical_requirements.md
 ├── CLAUDE/
-│   └── rules.md                # AI assistant guidelines
+│   ├── rules.md                # AI assistant guidelines
+│   └── plans/                  # Implementation plans
 └── README.md
 ```
 
@@ -128,10 +195,9 @@ ESP32_tamagotchi/
 
 - [ ] More sprite animations
 - [ ] Sound effects (PWM buzzer)
-- [ ] WiFi time sync for accurate aging
+- [ ] WiFi time sync (NTP) for accurate aging
 - [ ] Multiple pet personalities
 - [ ] Additional mini-games
-- [ ] Battery voltage display
 
 ## License
 

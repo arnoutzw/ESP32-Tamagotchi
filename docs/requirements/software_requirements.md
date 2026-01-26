@@ -280,26 +280,94 @@ Menu options:
 - No stuttering during menu navigation
 - Consistent timing for mini-games
 
+
+### REQ-SW-034: OTA Updates
+**Priority**: Critical
+**Description**: Allow for Over-The-Air (OTA) firmware updates with rollback capability.
+- Enable OTA partition scheme (two OTA slots)
+- Implement HTTP/HTTPS OTA update endpoint
+- Automatic rollback to previous firmware if new firmware fails to boot
+- Password-protected OTA endpoint
+
+**Acceptance Criteria**:
+- OTA update succeeds when valid firmware is uploaded
+- Device automatically rolls back if new firmware fails boot verification
+- OTA endpoint requires authentication
+- Update progress feedback (if display available during update)
+
+### REQ-SW-035: Battery Indicator
+**Priority**: Critical
+**Description**: Show a battery indicator to the user that predicts estimated SoC based on measured battery voltage from the hardware
+
+**Acceptance Criteria**:
+- Accurate indication of remaining runtime
+
+### REQ-SW-036: WiFi Connectivity with AP Fallback
+**Priority**: High
+**Description**: Provide WiFi connectivity for OTA updates and optional network features.
+- **Station (STA) mode**: Connect to configured home WiFi network
+- **Access Point (AP) fallback**: If STA connection fails or no credentials configured, start AP mode
+- **Credential storage**: Save WiFi SSID/password in NVS for persistence
+- **Auto-reconnect**: Automatically reconnect if STA connection is lost
+
+**WiFi Modes:**
+1. **AP Mode** (default/fallback):
+   - SSID: "Tamagotchi"
+   - Password: configurable (default: "dolphin123")
+   - IP: 192.168.4.1
+   - Used for initial setup and OTA when no STA configured
+
+2. **STA Mode** (preferred when configured):
+   - Connects to user's home network
+   - Enables NTP time sync
+   - Enables remote OTA updates
+   - Falls back to AP mode after N failed connection attempts
+
+**Acceptance Criteria**:
+- Device starts in AP mode if no WiFi credentials stored
+- Device attempts STA connection if credentials exist
+- Device falls back to AP mode after 5 failed STA connection attempts
+- WiFi credentials persist across reboots
+- OTA updates work in both AP and STA modes
+
+
+### REQ-SW-037: Build System
+**Priority**: Critical
+**Description**: Standardized build system with embedded ESP-IDF and YAML-based configuration.
+- ESP-IDF shall be embedded as a git submodule in the repo
+- Build system shall follow ESP-IDF industry standards (CMake-based)
+- Use YAML file (`config/secrets.yaml`) for compile-time configuration
+- Python script generates C header from YAML configuration
+- Generated headers shall not be committed to version control
+
+**Acceptance Criteria**:
+- ESP-IDF is available as git submodule at `esp-idf/` directory
+- Build works with `idf.py build` after submodule init
+- `config/secrets.yaml` contains all configurable secrets (WiFi, OTA passwords)
+- `scripts/generate_config.py` generates `config_secrets.h` from YAML
+- `.gitignore` excludes generated `config_secrets.h`
+- Build instructions documented in README
+
 ---
 
 ## Stretch Goals (If Resources Permit)
 
 ### REQ-SW-040: Sound Effects
-**Priority**: Low
+**Priority**: Descoped
 **Description**: Audio feedback using PWM buzzer (if hardware added).
 - Beep on button press
 - Melody for happy events
 - Alarm for attention needed
 
 ### REQ-SW-041: WiFi Features
-**Priority**: Low
+**Priority**: Critical
 **Description**: Optional network features.
 - Sync time via NTP for accurate aging
 - Share pet stats to web dashboard
 - Visit other pets (multiplayer concept)
 
 ### REQ-SW-042: Personality Traits
-**Priority**: Low
+**Priority**: Critical
 **Description**: Dolphin develops personality based on care.
 - Well-fed pets become "chubby" variant
 - Happy pets become "playful" variant
@@ -319,6 +387,17 @@ Menu options:
 | VT-006 | REQ-SW-011 | Verify menu navigation with both buttons |
 | VT-007 | REQ-SW-020 | Verify save/load across power cycle |
 | VT-008 | REQ-SW-021 | Verify time-based stat decay after power off |
+| VT-009 | REQ-SW-034 | Verify OTA update succeeds with valid firmware |
+| VT-010 | REQ-SW-034 | Verify OTA rollback on boot failure |
+| VT-011 | REQ-SW-036 | Verify AP mode starts when no credentials stored |
+| VT-012 | REQ-SW-036 | Verify STA mode connects with valid credentials |
+| VT-013 | REQ-SW-036 | Verify fallback to AP after STA connection failure |
+| VT-014 | REQ-SW-037 | Verify ESP-IDF submodule initializes correctly |
+| VT-015 | REQ-SW-037 | Verify config generation from YAML produces valid header |
+| VT-016 | REQ-SW-037 | Verify build succeeds with generated config |
+| VT-017 | REQ-SW-035 | Verify battery monitor initializes correctly |
+| VT-018 | REQ-SW-035 | Verify battery voltage reading in valid range |
+| VT-019 | REQ-SW-035 | Verify SoC percentage matches voltage |
 
 ---
 
@@ -336,3 +415,7 @@ Menu options:
 | REQ-SW-012 | input.c | VT-006 |
 | REQ-SW-020 | save_manager.c | VT-007 |
 | REQ-SW-021 | time_manager.c | VT-008 |
+| REQ-SW-034 | ota_manager.c, wifi_manager.c | VT-009, VT-010 |
+| REQ-SW-036 | wifi_manager.c | VT-011, VT-012, VT-013 |
+| REQ-SW-035 | battery.c | VT-017, VT-018, VT-019 |
+| REQ-SW-037 | scripts/generate_config.py, config/secrets.yaml | VT-014, VT-015, VT-016 |
