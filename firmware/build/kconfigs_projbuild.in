@@ -1,0 +1,5 @@
+source "/Users/arnoutzwartbol/workspaces/obsidian/MyVault/projects/ESP32_Rover/esp32-rover-firmware/firmware/esp-idf/components/bootloader/Kconfig.projbuild"
+source "/Users/arnoutzwartbol/workspaces/obsidian/MyVault/projects/ESP32_Rover/esp32-rover-firmware/firmware/esp-idf/components/esp_app_format/Kconfig.projbuild"
+source "/Users/arnoutzwartbol/workspaces/obsidian/MyVault/projects/ESP32_Rover/esp32-rover-firmware/firmware/esp-idf/components/esp_rom/Kconfig.projbuild"
+source "/Users/arnoutzwartbol/workspaces/obsidian/MyVault/projects/ESP32_Rover/esp32-rover-firmware/firmware/esp-idf/components/esptool_py/Kconfig.projbuild"
+source "/Users/arnoutzwartbol/workspaces/obsidian/MyVault/projects/ESP32_Rover/esp32-rover-firmware/firmware/esp-idf/components/partition_table/Kconfig.projbuild"

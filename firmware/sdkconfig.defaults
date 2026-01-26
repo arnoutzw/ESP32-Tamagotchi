@@ -1,0 +1,50 @@
+# ESP32 Tamagotchi - SDK Configuration Defaults
+# Target: TTGO T-Display (ESP32)
+
+# Chip configuration
+CONFIG_IDF_TARGET="esp32"
+
+# Flash configuration
+CONFIG_ESPTOOLPY_FLASHSIZE_4MB=y
+CONFIG_PARTITION_TABLE_SINGLE_APP=y
+
+# FreeRTOS configuration
+CONFIG_FREERTOS_HZ=1000
+CONFIG_FREERTOS_TIMER_TASK_STACK_DEPTH=2048
+
+# Log level (INFO for release, DEBUG for development)
+CONFIG_LOG_DEFAULT_LEVEL_INFO=y
+CONFIG_LOG_MAXIMUM_LEVEL_DEBUG=y
+
+# Task watchdog
+CONFIG_ESP_TASK_WDT=y
+CONFIG_ESP_TASK_WDT_TIMEOUT_S=10
+
+# SPI configuration for display
+CONFIG_SPI_MASTER_ISR_IN_IRAM=y
+
+# NVS configuration
+CONFIG_NVS_ENCRYPTION=n
+
+# Power management (disabled for consistent frame rate)
+CONFIG_PM_ENABLE=n
+
+# Optimization
+CONFIG_COMPILER_OPTIMIZATION_PERF=y
+
+# Stack smashing protection
+CONFIG_COMPILER_STACK_CHECK_MODE_NORM=y
+
+# Bootloader
+CONFIG_BOOTLOADER_LOG_LEVEL_WARN=y
+CONFIG_BOOTLOADER_SKIP_VALIDATE_IN_DEEP_SLEEP=y
+
+# ESP32 specific
+CONFIG_ESP32_DEFAULT_CPU_FREQ_240=y
+CONFIG_ESP32_REV_MIN_0=y
+
+# SPIRAM (TTGO doesn't have PSRAM, disable)
+CONFIG_SPIRAM=n
+
+# Reduce IRAM usage
+CONFIG_FREERTOS_PLACE_FUNCTIONS_INTO_FLASH=y
