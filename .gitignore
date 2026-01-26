@@ -1,0 +1,21 @@
+# Build directory
+build/
+firmware/build/
+
+# ESP-IDF generated
+sdkconfig.old
+*.pyc
+__pycache__/
+
+# Editor
+.vscode/
+*.swp
+*.swo
+*~
+
+# macOS
+.DS_Store
+
+# IDE
+.idea/
+*.iml

@@ -1,1 +1,0 @@
-/Users/arnoutzwartbol/workspaces/obsidian/MyVault/projects/ESP32_Rover/esp32-rover-firmware/firmware/esp-idf/components/mbedtls/mbedtls/library/version_features.c
