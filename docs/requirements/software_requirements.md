@@ -280,6 +280,17 @@ Menu options:
 - No stuttering during menu navigation
 - Consistent timing for mini-games
 
+### REQ-SW-XXX: Screen Orientation
+**Priority**: Critical
+**Description**:  Graphics shall be drawn in portrait mode
+
+### REQ-SW-XXX: GUI Location
+**Priority**: Critical
+**Description**:  GUI shall only cover bottom 20% of the screen and shall be scrollable
+
+### REQ-SW-XXX:  Button function
+**Priority**: Critical
+**Description**:  Left button shall navigate down in 
 
 ### REQ-SW-034: OTA Updates
 **Priority**: Critical
@@ -398,6 +409,15 @@ Menu options:
 | VT-017 | REQ-SW-035 | Verify battery monitor initializes correctly |
 | VT-018 | REQ-SW-035 | Verify battery voltage reading in valid range |
 | VT-019 | REQ-SW-035 | Verify SoC percentage matches voltage |
+| VT-020 | REQ-SW-041 | Verify NTP time sync within 5 seconds of WiFi connect |
+| VT-021 | REQ-SW-041 | Verify time maintained across short power cycles |
+| VT-022 | REQ-SW-041 | Verify web dashboard loads at device IP |
+| VT-023 | REQ-SW-041 | Verify GET /api/status returns valid JSON |
+| VT-024 | REQ-SW-042 | Verify chubby personality develops from overfeeding |
+| VT-025 | REQ-SW-042 | Verify playful personality develops from high happiness |
+| VT-026 | REQ-SW-042 | Verify shy personality develops from neglect |
+| VT-027 | REQ-SW-042 | Verify personality saved and restored correctly |
+| VT-028 | REQ-SW-042 | Verify personality affects stats as specified |
 
 ---
 
@@ -419,3 +439,5 @@ Menu options:
 | REQ-SW-036 | wifi_manager.c | VT-011, VT-012, VT-013 |
 | REQ-SW-035 | battery.c | VT-017, VT-018, VT-019 |
 | REQ-SW-037 | scripts/generate_config.py, config/secrets.yaml | VT-014, VT-015, VT-016 |
+| REQ-SW-041 | ntp_manager.c, web_dashboard.c | VT-020, VT-021, VT-022, VT-023 |
+| REQ-SW-042 | pet_state.c, sprites.c | VT-024, VT-025, VT-026, VT-027, VT-028 |
