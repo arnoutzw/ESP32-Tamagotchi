@@ -12,9 +12,9 @@
 // Hardware Configuration - TTGO T-Display
 //=============================================================================
 
-// Display - ST7789 1.14" TFT (240x135)
-#define LCD_WIDTH           240
-#define LCD_HEIGHT          135
+// Display - ST7789 1.14" TFT in portrait mode (REQ-SW-038)
+#define LCD_WIDTH           135
+#define LCD_HEIGHT          240
 #define LCD_SPI_HOST        SPI2_HOST
 #define LCD_PIN_MOSI        19
 #define LCD_PIN_SCLK        18
@@ -24,20 +24,20 @@
 #define LCD_PIN_BL          4
 #define LCD_SPI_CLOCK_HZ    (40 * 1000 * 1000)
 
-// ST7789 display offset (240x320 panel showing 135x240 window)
+// ST7789 display offset (240x320 panel showing 135x240 window in portrait)
 #define LCD_COL_OFFSET      52
 #define LCD_ROW_OFFSET      40
 
 // Buttons
-#define BUTTON_LEFT_GPIO    0   // Boot button
-#define BUTTON_RIGHT_GPIO   35  // User button
+#define BUTTON_LEFT_GPIO    0   // Boot button - Down/Back (REQ-SW-043)
+#define BUTTON_RIGHT_GPIO   35  // User button - Up/Confirm (REQ-SW-043)
 
 // Battery ADC (TTGO T-Display)
 #define BATTERY_ADC_GPIO    34  // Battery voltage with divider
 
-// Button timing
+// Button timing (REQ-SW-043)
 #define BUTTON_DEBOUNCE_MS      50
-#define BUTTON_LONG_PRESS_MS    2000
+#define BUTTON_LONG_PRESS_MS    2000  // Long press triggers at 2 seconds
 
 // Backlight PWM
 #define LCD_BL_PWM_CHANNEL      0

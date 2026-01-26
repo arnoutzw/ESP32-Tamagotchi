@@ -3,7 +3,8 @@
  * @brief ST7789 LCD display driver implementation
  *
  * REQ-SW-030: Display Driver
- * Optimized for TTGO T-Display with 240x135 pixel ST7789 panel.
+ * REQ-SW-038: Screen Orientation - Portrait mode (135x240)
+ * Optimized for TTGO T-Display with ST7789 panel in portrait orientation.
  */
 
 #include "display.h"
@@ -18,8 +19,9 @@
 static const char *TAG = "display";
 
 // Hardware configuration - TTGO T-Display
-#define LCD_WIDTH           240
-#define LCD_HEIGHT          135
+// REQ-SW-038: Portrait mode dimensions (135 wide x 240 tall)
+#define LCD_WIDTH           135
+#define LCD_HEIGHT          240
 #define LCD_PIN_MOSI        19
 #define LCD_PIN_SCLK        18
 #define LCD_PIN_CS          5
@@ -28,7 +30,8 @@ static const char *TAG = "display";
 #define LCD_PIN_BL          4
 #define LCD_SPI_CLOCK_HZ    (40 * 1000 * 1000)
 
-// ST7789 display offset (240x320 panel showing 135x240 window)
+// ST7789 display offset (240x320 panel showing 135x240 window in portrait)
+// For portrait mode, column offset adjusts for the 135px width centered in 240px panel
 #define LCD_COL_OFFSET      52
 #define LCD_ROW_OFFSET      40
 
@@ -276,8 +279,10 @@ esp_err_t display_init(void)
     lcd_cmd(ST7789_COLMOD);
     lcd_data_byte(0x55);  // 16-bit color
 
+    // REQ-SW-038: Portrait mode - no row/column swap (MV=0)
+    // MY=1 for correct vertical orientation, MX=0
     lcd_cmd(ST7789_MADCTL);
-    lcd_data_byte(MADCTL_MX | MADCTL_MV | MADCTL_RGB);  // Rotation for landscape
+    lcd_data_byte(MADCTL_MY | MADCTL_RGB);  // Portrait mode orientation
 
     lcd_cmd(ST7789_INVON);  // Inversion on (normal for this panel)
 

@@ -3,7 +3,8 @@
  * @brief ST7789 LCD display driver for TTGO T-Display
  *
  * REQ-SW-030: Display Driver
- * Provides hardware abstraction for the 240x135 TFT display.
+ * REQ-SW-038: Screen Orientation - Portrait mode (135x240)
+ * Provides hardware abstraction for the 135x240 TFT display in portrait mode.
  */
 
 #ifndef DISPLAY_H
@@ -13,9 +14,9 @@
 #include <stdbool.h>
 #include "esp_err.h"
 
-// Display dimensions
-#define DISPLAY_WIDTH   240
-#define DISPLAY_HEIGHT  135
+// Display dimensions - Portrait mode (REQ-SW-038)
+#define DISPLAY_WIDTH   135
+#define DISPLAY_HEIGHT  240
 
 /**
  * @brief Initialize the display hardware

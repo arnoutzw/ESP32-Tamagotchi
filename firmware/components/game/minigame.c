@@ -18,19 +18,21 @@
 static const char *TAG = "minigame";
 
 //=============================================================================
-// Constants
+// Constants - Portrait Mode (REQ-SW-038)
 //=============================================================================
 
-#define SCREEN_W            240
-#define SCREEN_H            135
+#define SCREEN_W            135     // Portrait width
+#define SCREEN_H            240     // Portrait height
 
-#define DOLPHIN_X           60
-#define DOLPHIN_GROUND_Y    90
+// Dolphin positioned in upper-middle area
+#define DOLPHIN_X           50
+#define DOLPHIN_GROUND_Y    140
 #define DOLPHIN_W           32
 #define DOLPHIN_H           24
 
+// Wave comes from bottom
 #define WAVE_START_X        (SCREEN_W + 20)
-#define WAVE_GROUND_Y       95
+#define WAVE_GROUND_Y       145
 #define WAVE_W              32
 #define WAVE_H              16
 
@@ -202,23 +204,30 @@ void minigame_handle_input(button_id_t button, button_event_t event)
 
 void minigame_render(void)
 {
-    // Ocean background gradient
+    // Ocean background gradient (portrait mode)
     for (int y = 0; y < SCREEN_H; y++) {
-        uint16_t color = (y < SCREEN_H / 2) ? COLOR_BG : COLOR_BG_DARK;
+        uint16_t color;
+        if (y < SCREEN_H / 3) {
+            color = COLOR_BG;
+        } else if (y < (SCREEN_H * 2) / 3) {
+            color = COLOR_BG_DARK;
+        } else {
+            color = 0x1B4D;  // Darker blue at bottom
+        }
         display_draw_hline(0, y, SCREEN_W, color);
     }
 
     // Water line
     display_draw_hline(0, WAVE_GROUND_Y + 5, SCREEN_W, COLOR_WAVE_DARK);
 
-    // Round indicator
+    // Round indicator (top area - portrait adjusted)
     char buf[16];
-    snprintf(buf, sizeof(buf), "Round %d/%d", s_game.round, s_game.max_rounds);
+    snprintf(buf, sizeof(buf), "R%d/%d", s_game.round, s_game.max_rounds);
     display_draw_string(5, 5, buf, COLOR_TEXT, COLOR_BG, 1);
 
-    // Score
-    snprintf(buf, sizeof(buf), "Score: %d", s_game.successes);
-    display_draw_string(SCREEN_W - 70, 5, buf, COLOR_TEXT, COLOR_BG, 1);
+    // Score (top right - portrait adjusted)
+    snprintf(buf, sizeof(buf), "%d", s_game.successes);
+    display_draw_string(SCREEN_W - 20, 5, buf, COLOR_TEXT, COLOR_BG, 1);
 
     // Draw wave
     if (s_game.wave_active && s_game.wave_x < SCREEN_W && s_game.wave_x + WAVE_W > 0) {
@@ -238,16 +247,16 @@ void minigame_render(void)
     const uint16_t *sprite = sprites_get_idle_frame(1, 0, &w, &h);  // Baby frame
     display_draw_sprite_scaled(DOLPHIN_X, s_game.dolphin_y, w, h, sprite, SPRITE_TRANSPARENT, 2);
 
-    // Draw result overlay
+    // Draw result overlay (centered for portrait)
     if (s_game.state == MINIGAME_STATE_SUCCESS) {
-        display_draw_string(80, 50, "NICE!", COLOR_SUCCESS, COLOR_BG, 2);
+        display_draw_string(25, 80, "NICE!", COLOR_SUCCESS, COLOR_BG_DARK, 2);
     } else if (s_game.state == MINIGAME_STATE_FAIL) {
-        display_draw_string(80, 50, "OOPS!", COLOR_FAIL, COLOR_BG, 2);
+        display_draw_string(25, 80, "OOPS!", COLOR_FAIL, COLOR_BG_DARK, 2);
     }
 
-    // Instructions
+    // Instructions (bottom area)
     if (s_game.state == MINIGAME_STATE_PLAYING) {
-        display_draw_string(60, SCREEN_H - 15, "Press to JUMP!", COLOR_TEXT, COLOR_BG_DARK, 1);
+        display_draw_string(15, SCREEN_H - 20, "Press to JUMP!", COLOR_TEXT, 0x1B4D, 1);
     }
 }
 

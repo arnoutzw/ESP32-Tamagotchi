@@ -3,7 +3,12 @@
  * @brief Button input handling implementation
  *
  * REQ-SW-012: Button Input
+ * REQ-SW-043: Button Functions
  * Implements debounced button input with short/long press detection.
+ *
+ * Button mapping (REQ-SW-043):
+ * - Left (GPIO 0):  Short press = Down/Previous, Long press (2s) = Back
+ * - Right (GPIO 35): Short press = Up/Next, Long press (2s) = Confirm/Select
  */
 
 #include "input.h"

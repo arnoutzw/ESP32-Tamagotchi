@@ -201,14 +201,22 @@ Normal Mode (pet visible)
 
 ## Status
 
-- [ ] Phase 1: Menu data structures
-- [ ] Phase 2: Menu rendering
-- [ ] Phase 3: Menu icons
-- [ ] Phase 4: Integration
+- [x] Phase 1: Menu data structures (completed 2026-01-26)
+- [x] Phase 2: Menu rendering (completed 2026-01-26)
+- [x] Phase 3: Menu icons (using text labels, completed 2026-01-26)
+- [x] Phase 4: Integration (completed 2026-01-26)
 
 ## Implementation Notes
 
-*To be updated during implementation*
+**Completed 2026-01-26:**
+- Implemented in `game.c` rather than separate menu component for simplicity
+- Menu bar height: 48 pixels (20% of 240)
+- Menu bar position: Y=192 to Y=240 (bottom of screen)
+- Shows 4 menu items at a time with scroll indicators
+- Text-based labels instead of icons for clarity on small screen
+- Scroll offset auto-adjusts to keep selection visible
+- Green highlight for selected item when menu is active
+- Button hint shows "R:Menu" when menu not active
 
 ## Dependencies on REQ-SW-038
 

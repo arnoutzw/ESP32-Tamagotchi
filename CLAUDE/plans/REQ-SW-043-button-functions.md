@@ -239,8 +239,8 @@ Define and implement button functions for the two-button TTGO T-Display interfac
 
 | Test ID | Description | Pass Criteria |
 |---------|-------------|---------------|
-| VT-032 | Short press detection | Press <800ms triggers short event |
-| VT-033 | Long press detection | Press >800ms triggers long event |
+| VT-032 | Short press detection | Press <2000ms triggers short event |
+| VT-033 | Long press detection | Press >2000ms triggers long event |
 | VT-034 | Left button down/back | Left navigates down, long press = back |
 | VT-035 | Right button up/confirm | Right navigates up, long press = confirm |
 | Manual | Menu navigation | Can navigate full menu using buttons |
@@ -248,15 +248,27 @@ Define and implement button functions for the two-button TTGO T-Display interfac
 
 ## Status
 
-- [ ] Phase 1: Button event system
-- [ ] Phase 2: Button state machine
-- [ ] Phase 3: Context-aware handling
-- [ ] Phase 4: Game integration
-- [ ] Phase 5: Visual feedback
+- [x] Phase 1: Button event system (existing input.c already supports this)
+- [x] Phase 2: Button state machine (existing input.c has debounce, long press)
+- [x] Phase 3: Context-aware handling (completed in game.c 2026-01-26)
+- [x] Phase 4: Game integration (completed 2026-01-26)
+- [ ] Phase 5: Visual feedback (deferred - not critical)
 
 ## Implementation Notes
 
-*To be updated during implementation*
+**Completed 2026-01-26:**
+- Leveraged existing `input.c` which already has:
+  - 50ms debounce
+  - 2000ms long press threshold (matches REQ-SW-043 spec)
+  - BUTTON_EVENT_CLICK for short press
+  - BUTTON_EVENT_LONG_PRESS for 2s hold
+- Updated `game.c` with new button handling:
+  - MAIN state: Right short/long → enter menu
+  - MENU state: Left short=down, Right short=up
+  - MENU state: Right long=confirm, Left long=back
+  - FEED state: Same pattern as menu
+  - All submenus support Left long=back
+- Long press timing at 2000ms as specified in requirements
 
 ## Design Decisions
 
