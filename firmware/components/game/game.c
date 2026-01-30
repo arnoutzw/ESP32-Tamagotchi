@@ -198,11 +198,11 @@ static void render_splash(void)
 
 static void render_main(void)
 {
-    // Ocean gradient background
-    for (int y = STATUS_BAR_H; y < SCREEN_H; y++) {
-        uint16_t color = (y < SCREEN_H / 2) ? COLOR_BG_LIGHT : COLOR_BG;
-        display_draw_hline(0, y, SCREEN_W, color);
-    }
+    // Ocean gradient background - use two rectangles instead of line-by-line
+    // This reduces SPI transactions and eliminates flickering
+    int mid_y = SCREEN_H / 2;
+    display_fill_rect(0, STATUS_BAR_H, SCREEN_W, mid_y - STATUS_BAR_H, COLOR_BG_LIGHT);
+    display_fill_rect(0, mid_y, SCREEN_W, SCREEN_H - mid_y, COLOR_BG);
 
     render_status_bar();
     render_pet();
