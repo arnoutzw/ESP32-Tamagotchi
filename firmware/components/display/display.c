@@ -277,7 +277,7 @@ esp_err_t display_init(void)
     lcd_data_byte(0x55);  // 16-bit color
 
     lcd_cmd(ST7789_MADCTL);
-    lcd_data_byte(MADCTL_MX | MADCTL_MV | MADCTL_RGB);  // Rotation for landscape
+    lcd_data_byte(MADCTL_MY | MADCTL_MV | MADCTL_RGB);  // Rotation for landscape (MY for correct orientation)
 
     lcd_cmd(ST7789_INVON);  // Inversion on (normal for this panel)
 
@@ -393,11 +393,74 @@ void display_draw_rect(int16_t x, int16_t y, int16_t w, int16_t h, uint16_t colo
 void display_draw_sprite(int16_t x, int16_t y, int16_t w, int16_t h,
                          const uint16_t *data, uint16_t transparent)
 {
-    for (int16_t j = 0; j < h; j++) {
-        for (int16_t i = 0; i < w; i++) {
-            uint16_t pixel = data[j * w + i];
-            if (pixel != transparent) {
-                display_draw_pixel(x + i, y + j, pixel);
+    // Check if sprite has transparency - if not, we can use fast path
+    bool has_transparency = false;
+    for (int16_t i = 0; i < w * h && !has_transparency; i++) {
+        if (data[i] == transparent) {
+            has_transparency = true;
+        }
+    }
+
+    if (!has_transparency) {
+        // Fast path: no transparency, send entire sprite in one transaction
+        lcd_set_window(x, y, x + w - 1, y + h - 1);
+
+        // Prepare buffer with byte-swapped pixels for SPI
+        size_t total_pixels = w * h;
+        size_t pixels_per_batch = SPI_MAX_TRANSFER_SIZE / 2;
+        uint16_t *buf16 = (uint16_t *)s_spi_buffer;
+
+        gpio_set_level(LCD_PIN_DC, 1);
+
+        size_t sent = 0;
+        while (sent < total_pixels) {
+            size_t batch = ((total_pixels - sent) > pixels_per_batch) ? pixels_per_batch : (total_pixels - sent);
+
+            // Byte-swap pixels into buffer
+            for (size_t i = 0; i < batch; i++) {
+                uint16_t pixel = data[sent + i];
+                buf16[i] = (pixel >> 8) | (pixel << 8);
+            }
+
+            spi_transaction_t t = {
+                .length = batch * 16,
+                .tx_buffer = s_spi_buffer,
+            };
+            spi_device_polling_transmit(s_spi, &t);
+            sent += batch;
+        }
+    } else {
+        // Slow path: handle transparency by drawing row by row
+        // This reduces SPI transactions compared to pixel-by-pixel
+        for (int16_t j = 0; j < h; j++) {
+            int16_t run_start = -1;
+
+            for (int16_t i = 0; i <= w; i++) {
+                uint16_t pixel = (i < w) ? data[j * w + i] : transparent;
+                bool is_visible = (pixel != transparent);
+
+                if (is_visible && run_start < 0) {
+                    // Start of a visible run
+                    run_start = i;
+                } else if (!is_visible && run_start >= 0) {
+                    // End of visible run - draw it
+                    int16_t run_len = i - run_start;
+                    lcd_set_window(x + run_start, y + j, x + i - 1, y + j);
+
+                    uint16_t *buf16 = (uint16_t *)s_spi_buffer;
+                    for (int16_t k = 0; k < run_len; k++) {
+                        uint16_t p = data[j * w + run_start + k];
+                        buf16[k] = (p >> 8) | (p << 8);
+                    }
+
+                    gpio_set_level(LCD_PIN_DC, 1);
+                    spi_transaction_t t = {
+                        .length = run_len * 16,
+                        .tx_buffer = s_spi_buffer,
+                    };
+                    spi_device_polling_transmit(s_spi, &t);
+                    run_start = -1;
+                }
             }
         }
     }
@@ -421,20 +484,51 @@ void display_draw_char(int16_t x, int16_t y, char c, uint16_t color, uint16_t bg
     if (c < 32 || c > 126) c = '?';
     const uint8_t *glyph = &s_font_6x8[(c - 32) * 6];
 
-    for (int8_t i = 0; i < 6; i++) {
-        uint8_t line = glyph[i];
+    // Swap bytes for SPI (big-endian)
+    uint16_t color_swapped = (color >> 8) | (color << 8);
+    uint16_t bg_swapped = (bg >> 8) | (bg << 8);
+
+    if (size == 1) {
+        // Optimized: render entire character to buffer and send in one transaction
+        // Character is 6x8 pixels = 96 bytes (48 pixels * 2 bytes)
+        uint16_t char_buf[6 * 8];
+
+        // Build character buffer (column by column, row by row for correct memory layout)
         for (int8_t j = 0; j < 8; j++) {
-            if (line & (1 << j)) {
-                if (size == 1) {
-                    display_draw_pixel(x + i, y + j, color);
+            for (int8_t i = 0; i < 6; i++) {
+                uint8_t line = glyph[i];
+                if (line & (1 << j)) {
+                    char_buf[j * 6 + i] = color_swapped;
                 } else {
-                    display_fill_rect(x + i * size, y + j * size, size, size, color);
+                    char_buf[j * 6 + i] = bg_swapped;
                 }
-            } else if (bg != color) {
-                if (size == 1) {
-                    display_draw_pixel(x + i, y + j, bg);
-                } else {
-                    display_fill_rect(x + i * size, y + j * size, size, size, bg);
+            }
+        }
+
+        // Send entire character in one SPI transaction
+        lcd_set_window(x, y, x + 5, y + 7);
+        gpio_set_level(LCD_PIN_DC, 1);
+        spi_transaction_t t = {
+            .length = 6 * 8 * 16,  // 48 pixels * 16 bits
+            .tx_buffer = char_buf,
+        };
+        spi_device_polling_transmit(s_spi, &t);
+    } else {
+        // For scaled text, first fill background rectangle, then draw foreground
+        int16_t char_w = 6 * size;
+        int16_t char_h = 8 * size;
+
+        // Fill entire character area with background color first
+        if (bg != color) {
+            display_fill_rect(x, y, char_w, char_h, bg);
+        }
+
+        // Draw only foreground pixels (much fewer SPI transactions)
+        for (int8_t i = 0; i < 6; i++) {
+            uint8_t line = glyph[i];
+            for (int8_t j = 0; j < 8; j++) {
+                if (line & (1 << j)) {
+                    display_fill_rect(x + i * size, y + j * size, size, size, color);
                 }
             }
         }
